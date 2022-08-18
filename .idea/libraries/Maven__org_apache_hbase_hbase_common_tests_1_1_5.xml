@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.apache.hbase:hbase-common:tests:1.1.5">
+    <CLASSES>
+      <root url="jar://F:/BaiduNetdiskDownload/.m2/repository/org/apache/hbase/hbase-common/1.1.5/hbase-common-1.1.5-tests.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://F:/BaiduNetdiskDownload/.m2/repository/org/apache/hbase/hbase-common/1.1.5/hbase-common-1.1.5-test-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://F:/BaiduNetdiskDownload/.m2/repository/org/apache/hbase/hbase-common/1.1.5/hbase-common-1.1.5-test-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

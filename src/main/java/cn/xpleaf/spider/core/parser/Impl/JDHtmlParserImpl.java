@@ -13,12 +13,13 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * 解析京东商品的实现类
  */
-public class JDHtmlParserImpl implements IParser {
+public class JDHtmlParserImpl implements IParser, Serializable {
 
     // log4j日志记录
     private Logger logger = LoggerFactory.getLogger(JDHtmlParserImpl.class);

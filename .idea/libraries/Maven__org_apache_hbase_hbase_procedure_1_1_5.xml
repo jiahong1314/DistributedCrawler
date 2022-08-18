@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.apache.hbase:hbase-procedure:1.1.5">
+    <CLASSES>
+      <root url="jar://F:/BaiduNetdiskDownload/.m2/repository/org/apache/hbase/hbase-procedure/1.1.5/hbase-procedure-1.1.5.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://F:/BaiduNetdiskDownload/.m2/repository/org/apache/hbase/hbase-procedure/1.1.5/hbase-procedure-1.1.5-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://F:/BaiduNetdiskDownload/.m2/repository/org/apache/hbase/hbase-procedure/1.1.5/hbase-procedure-1.1.5-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,12 +1,13 @@
 package cn.xpleaf.spider.core.pojo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 网页对象，主要包含网页内容和商品数据
  */
-public class Page {
+public class Page implements Serializable {
     private String content;              // 网页内容
 
     private String id;                    // 商品Id
@@ -18,6 +19,23 @@ public class Page {
     private String url;                  // 商品地址
     private String imgUrl;             // 商品图片地址
     private String params;              // 商品规格参数
+
+    @Override
+    public String toString() {
+        return "Page{" +
+                "content='" + content + '\'' +
+                ", id='" + id + '\'' +
+                ", source='" + source + '\'' +
+                ", brand='" + brand + '\'' +
+                ", title='" + title + '\'' +
+                ", price=" + price +
+                ", commentCount=" + commentCount +
+                ", url='" + url + '\'' +
+                ", imgUrl='" + imgUrl + '\'' +
+                ", params='" + params + '\'' +
+                ", urls=" + urls +
+                '}';
+    }
 
     private List<String> urls = new ArrayList<>();  // 解析列表页面时用来保存解析的商品url的容器
 

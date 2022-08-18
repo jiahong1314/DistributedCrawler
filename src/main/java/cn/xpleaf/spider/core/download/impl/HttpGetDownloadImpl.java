@@ -4,10 +4,12 @@ import cn.xpleaf.spider.core.download.IDownload;
 import cn.xpleaf.spider.core.pojo.Page;
 import cn.xpleaf.spider.utils.HttpUtil;
 
+import java.io.Serializable;
+
 /**
  * 数据下载实现类
  */
-public class HttpGetDownloadImpl implements IDownload {
+public class HttpGetDownloadImpl implements IDownload, Serializable {
 
     @Override
     public Page download(String url) {

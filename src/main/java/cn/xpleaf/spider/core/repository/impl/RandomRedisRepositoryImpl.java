@@ -6,6 +6,7 @@ import cn.xpleaf.spider.utils.JedisUtil;
 import cn.xpleaf.spider.utils.SpiderUtil;
 import redis.clients.jedis.Jedis;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -38,13 +39,13 @@ import java.util.Set;
  *
  *       种子url列表中的url会由url调度器定时向高低优先url队列中
  */
-public class RandomRedisRepositoryImpl implements IRepository {
+public class RandomRedisRepositoryImpl implements IRepository, Serializable {
 
     /**
      * 构造方法
      */
     public RandomRedisRepositoryImpl() {
-        init();
+        //init();
     }
 
     /**
