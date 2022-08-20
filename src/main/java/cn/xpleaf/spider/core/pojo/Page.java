@@ -2,6 +2,7 @@ package cn.xpleaf.spider.core.pojo;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -15,10 +16,14 @@ public class Page implements Serializable {
     private String brand;                // 商品品牌
     private String title;                // 商品标题
     private Float price;                // 商品价格
-    private Integer commentCount;        // 商品评论数
+    private String commentCount;        // 商品评论数
+
+    private Float goodRate;
     private String url;                  // 商品地址
     private String imgUrl;             // 商品图片地址
     private String params;              // 商品规格参数
+
+    private Map paramDetails;       // 商品规格参数分解信息
 
     @Override
     public String toString() {
@@ -87,12 +92,20 @@ public class Page implements Serializable {
         this.price = price;
     }
 
-    public Integer getCommentCount() {
+    public String getCommentCount() {
         return commentCount;
     }
 
-    public void setCommentCount(int commentCount) {
+    public void setCommentCount(String commentCount) {
         this.commentCount = commentCount;
+    }
+
+    public Float getGoodRate() {
+        return goodRate;
+    }
+
+    public void setGoodRate(Float goodRate) {
+        this.goodRate = goodRate;
     }
 
     public String getUrl() {
@@ -117,6 +130,14 @@ public class Page implements Serializable {
 
     public void setParams(String params) {
         this.params = params;
+    }
+
+    public void setParamDetails(Map paramDetails) {
+        this.paramDetails = paramDetails;
+    }
+
+    public Map getParamDetails() {
+        return paramDetails;
     }
 
     public List<String> getUrls() {

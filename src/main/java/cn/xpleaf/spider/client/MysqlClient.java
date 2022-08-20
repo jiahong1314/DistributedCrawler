@@ -4,6 +4,8 @@ import cn.xpleaf.spider.core.pojo.Page;
 
 import java.sql.PreparedStatement;
 import java.sql.*;
+import java.util.Map;
+
 /**
  * @author hong
  * @date 2022年08月17日 22:47
@@ -41,7 +43,7 @@ public class MysqlClient {
     }
     public static int insert(Page page){
         int row = 0;
-        String sql = "insert into phone(id, source, brand, title, price, comment_count, url, img_url, params) values(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "insert into phone(id, source, brand, title, price, comment_count, good_rate, url, img_url, main, battery, interface, network, operating_system, basic_info, camera, screen) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         Connection connection = getConnection();
         try {
             ps = connection.prepareStatement(sql);
@@ -50,10 +52,20 @@ public class MysqlClient {
             ps.setString(3,page.getBrand());
             ps.setString(4,page.getTitle());
             ps.setFloat(5,page.getPrice());
-            ps.setInt(6,page.getCommentCount());
-            ps.setString(7,page.getUrl());
-            ps.setString(8,page.getImgUrl());
-            ps.setString(9,page.getParams());
+            ps.setString(6,page.getCommentCount());
+            ps.setFloat(7,page.getGoodRate());
+            ps.setString(8,page.getUrl());
+            ps.setString(9,page.getImgUrl());
+//            ps.setString(9,page.getParams());
+            Map paramDetails =  page.getParamDetails();
+            ps.setString(10, (String) paramDetails.get("主体"));
+            ps.setString(11, (String) paramDetails.get("电池信息"));
+            ps.setString(12, (String) paramDetails.get("数据接口"));
+            ps.setString(13, (String) paramDetails.get("网络支持"));
+            ps.setString(14, (String) paramDetails.get("操作系统"));
+            ps.setString(15, (String) paramDetails.get("基本信息"));
+            ps.setString(16, (String) paramDetails.get("摄像头"));
+            ps.setString(17, (String) paramDetails.get("屏幕"));
 
             row = ps.executeUpdate();
 

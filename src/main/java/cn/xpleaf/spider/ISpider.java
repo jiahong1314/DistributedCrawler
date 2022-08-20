@@ -7,30 +7,22 @@ import cn.xpleaf.spider.core.download.impl.HttpGetDownloadImpl;
 import cn.xpleaf.spider.core.parser.IParser;
 import cn.xpleaf.spider.core.parser.Impl.JDHtmlParserImpl;
 import cn.xpleaf.spider.core.pojo.Page;
+import cn.xpleaf.spider.core.pojo.UrlList;
 import cn.xpleaf.spider.core.repository.IRepository;
 import cn.xpleaf.spider.core.repository.impl.RandomRedisRepositoryImpl;
 import cn.xpleaf.spider.core.store.IStore;
 import cn.xpleaf.spider.core.store.impl.MySQLStoreImpl;
 import cn.xpleaf.spider.utils.JedisUtil;
 import cn.xpleaf.spider.utils.SpiderUtil;
-import org.apache.curator.RetryPolicy;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 
 import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * 爬虫入口类
@@ -79,14 +71,15 @@ public class ISpider implements Serializable {
             Map<String, String> jdMarker = new HashMap<>();
             jdMarker.put("higher", "https://list.jd.com/");
             jdMarker.put("lower", "https://item.jd.com");
+
             iSpider.setUrlLevelMarker("jd.com", jdMarker);
+
 
             // 3.注入存储器
             iSpider.setStore(new MySQLStoreImpl());
 
             // 4.设置种子url
             iSpider.setSeedUrls("https://list.jd.com/list.html?cat=9987,653,655&page=1");
-
             // 5.设置url仓库
             //RandomRedisRepositoryImpl repository = new RandomRedisRepositoryImpl();
             iSpider.setRepository(new RandomRedisRepositoryImpl()); // 设置url仓库
@@ -126,111 +119,50 @@ public class ISpider implements Serializable {
         this.store.store(page);
     }
 
-    /**
-     * 注册zk
-     */
-    private void registerZK() {
-        String zkStr = "uplooking01:2181,uplooking02:2181,uplooking03:2181";
-        int baseSleepTimeMs = 1000;
-        int maxRetries = 3;
-        RetryPolicy retryPolicy = new ExponentialBackoffRetry(baseSleepTimeMs, maxRetries);
-        CuratorFramework curator = CuratorFrameworkFactory.newClient(zkStr, retryPolicy);
-        curator.start();
-        String ip = null;
-        try {
-            // 向zk的具体目录注册 写节点 创建节点
-            ip = InetAddress.getLocalHost().getHostAddress();
-            curator.create().withMode(CreateMode.EPHEMERAL).forPath("/ispider/" + ip, ip.getBytes());
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    ///**
-    // * 启动爬虫的方法（使用多线程）
-    // */
-    //public void start() {
-    //    // 向zookeeper注册爬虫服务
-    //    registerZK();
-    //    // 多线程爬虫 使用5个线程的线程池来运行
-    //    ScheduledExecutorService es = Executors.newScheduledThreadPool(5);
-    //    for (int i = 0; i < 5; i++) {
-    //        es.execute(new Runnable() {
-    //            @Override
-    //            public void run() {
-    //                while (true) {  // 要想开启循环爬取商品，则必须是执行一个死循环
-    //                    String url = repository.poll();
-    //                    String domain = SpiderUtil.getTopDomain(url);   // 获取url对应的顶级域名
-    //                    if (url != null) {  // 从url仓库中获取的url不为null
-    //                        // 下载网页
-    //                        Page page = download(url);
-    //                        // 解析网页
-    //                        if (page.getContent() != null) { // 只有content不为null时才进行后面的操作，否则没有意义
-    //                            parser(page, domain); // 如果该url为列表url，从这里有可能解析出很多的url
-    //                            for (String pUrl : page.getUrls()) { // 向url仓库中添加url
-    //                                String higherUrlMark = urlLevelMarker.get(domain).get("higher");
-    //                                String lowerUrlMark = urlLevelMarker.get(domain).get("lower");
-    //                                if (pUrl.startsWith(higherUrlMark)) {    // 高优先级
-    //                                    repository.offerHigher(pUrl);
-    //                                } else if (pUrl.startsWith(lowerUrlMark)) { // 低优先级
-    //                                    repository.offerLower(pUrl);
-    //                                }
-    //                            }
-    //                            if (page.getId() != null) {  // 当商品id不为null时，说明前面解析的url是商品url，而不是列表url，这时存储数据才有意义
-    //                                // 存储解析数据
-    //                                store(page);
-    //                            }
-    //                        }
-    //                        // 上面操作结束之后必须要休息一会，否则频率太高的话很有可能会被封ip
-    //                        SpiderUtil.sleep(1000);
-    //                    } else {    // 从url仓库中没有获取到url
-    //                        logger.info("没有url，请及时添加种子url");
-    //                        SpiderUtil.sleep(2000);
-    //                    }
-    //                }
-    //            }
-    //        });
-    //    }
-    //}
-
-    public void startSingle(String url) {
-        //while (true) {  // 要想开启循环爬取商品，则必须是执行一个死循环
-            //String url = repository.poll();
-            String domain = SpiderUtil.getTopDomain(url);   // 获取url对应的顶级域名
-            System.out.println("-----flink url"+"    "+url);
-            if (url != null) {  // 从url仓库中获取的url不为null
-                // 下载网页
-                Page page = download(url);
-                // 解析网页
-                if (page.getContent() != null) { // 只有content不为null时才进行后面的操作，否则没有意义
-                    parser(page, domain); // 如果该url为列表url，从这里有可能解析出很多的url
-                    for (String pUrl : page.getUrls()) { // 向url仓库中添加url
-                        logger.info(pUrl);
-                        String higherUrlMark = urlLevelMarker.get(domain).get("higher");
-                        String lowerUrlMark = urlLevelMarker.get(domain).get("lower");
-                        if (pUrl.startsWith(higherUrlMark)) {    // 高优先级
-                            repository.offerHigher(pUrl);
-                        } else if (pUrl.startsWith(lowerUrlMark)) { // 低优先级
-                            repository.offerLower(pUrl);
-                        }
-                    }
-                    if (page.getId() != null) {  // 当商品id不为null时，说明前面解析的url是商品url，而不是列表url，这时存储数据才有意义
-                        // 存储解析数据
-                        // store(page);
-                        // System.out.println(page);
-                        MysqlClient.insert(page);
+    public  UrlList startSingle(String url){
+        UrlList urlList = new UrlList();
+        String domain = SpiderUtil.getTopDomain(url);   // 获取url对应的顶级域名
+        System.out.println("-----flink url"+"    "+url);
+        if (url != null) {  // 从url仓库中获取的url不为null
+            // 下载网页
+            Page page = download(url);
+            // 解析网页
+            if (page.getContent() != null) { // 只有content不为null时才进行后面的操作，否则没有意义
+                List<String> highList = new ArrayList<>();
+                List<String> lowList = new ArrayList<>();
+                parser(page, domain); // 如果该url为列表url，从这里有可能解析出很多的url
+                for (String pUrl : page.getUrls()) { // 向url仓库中添加url
+                    logger.info(pUrl);
+                    String higherUrlMark = urlLevelMarker.get(domain).get("higher");
+                    String lowerUrlMark = urlLevelMarker.get(domain).get("lower");
+                    if (pUrl.startsWith(higherUrlMark)) {    // 高优先级
+                        //repository.offerHigher(pUrl);
+                        highList.add(pUrl);
+                    } else if (pUrl.startsWith(lowerUrlMark)) { // 低优先级
+                        //repository.offerLower(pUrl);
+                        lowList.add(pUrl);
                     }
                 }
-                // 上面操作结束之后必须要休息一会，否则频率太高的话很有可能会被封ip
-                SpiderUtil.sleep(1000);
-            } else {    // 从url仓库中没有获取到url
-                logger.info("没有url，请及时添加种子url");
-                SpiderUtil.sleep(2000);
+                urlList.setHighList(highList);
+                urlList.setLowList(lowList);
+                if (page.getId() != null) {  // 当商品id不为null时，说明前面解析的url是商品url，而不是列表url，这时存储数据才有意义
+                    // 存储解析数据
+                    // store(page);
+                    // System.out.println(page);
+                    //
+                    MysqlClient.insert(page);
+                }
             }
-        //}
+            // 上面操作结束之后必须要休息一会，否则频率太高的话很有可能会被封ip
+            //SpiderUtil.sleep(1000);
+        } else {    // 从url仓库中没有获取到url
+            logger.info("没有url，请及时添加种子url");
+            SpiderUtil.sleep(2000);
+        }
+
+        return urlList;
     }
+
 
     public void setLogger(Logger logger) {
         this.logger = logger;

@@ -45,7 +45,7 @@ public class RandomRedisRepositoryImpl implements IRepository, Serializable {
      * 构造方法
      */
     public RandomRedisRepositoryImpl() {
-        //init();
+        init();
     }
 
     /**

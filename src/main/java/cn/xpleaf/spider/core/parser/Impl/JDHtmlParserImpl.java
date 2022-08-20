@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.*;
 
 /**
  * 解析京东商品的实现类
@@ -103,7 +104,7 @@ public class JDHtmlParserImpl implements IParser, Serializable {
 
         // 6.params; 商品规格参数
         // Map<String, Map<String, String>>
-        // {"主体": {"品牌": Apple}, "型号": "IPhone 7 Plus", "基本信息":{"机身颜色":"玫瑰金"}}
+        // {"主体": {"品牌": Apple}, "型号": "IPhone 7 Plus", "基本信息":{"机身颜色":"玫瑰金"}}//*[@id="detail"]/div[2]/div[1]/div[1]/ul[3]
         JSONObject paramObj = HtmlUtil.getParams(tagNode, "//*[@id=\"detail\"]/div[2]/div[2]/div[1]/*", "//h3", "//dl");
         if (paramObj.has("主体")) {
             if (paramObj.getJSONObject("主体").has("品牌")) {
@@ -113,6 +114,18 @@ public class JDHtmlParserImpl implements IParser, Serializable {
         }
         page.setParams(paramObj.toString());
 
+        // 商品规格参数分解信息
+        Map paramDetails = new HashMap();
+        paramDetails.put("主体", String.valueOf(paramObj.getJSONObject("主体")));
+        paramDetails.put("电池信息", String.valueOf(paramObj.getJSONObject("电池信息")).replaceAll("\r|\n",""));
+        paramDetails.put("数据接口", String.valueOf(paramObj.getJSONObject("数据接口")).replaceAll("\r|\n",""));
+        paramDetails.put("网络支持", String.valueOf(paramObj.getJSONObject("网络支持")).replaceAll("\r|\n",""));
+        paramDetails.put("操作系统", String.valueOf(paramObj.getJSONObject("操作系统")).replaceAll("\r|\n",""));
+        paramDetails.put("基本信息", String.valueOf(paramObj.getJSONObject("基本信息")).replaceAll("\r|\n",""));
+        paramDetails.put("摄像头", String.valueOf(paramObj.getJSONObject("摄像头")).replaceAll("\r|\n",""));
+        paramDetails.put("屏幕", String.valueOf(paramObj.getJSONObject("屏幕")).replaceAll("\r|\n",""));
+        page.setParamDetails(paramDetails);
+
         // 7.商品评论数
         // 注意JsonObj和JsonArray的不同获取方法
         String commentCountUrl = "https://club.jd.com/comment/productCommentSummaries.action?referenceIds=" + id;
@@ -120,8 +133,10 @@ public class JDHtmlParserImpl implements IParser, Serializable {
         if (commentCountJson != null) {
             JSONArray commentCountJsonArray = new JSONObject(commentCountJson).getJSONArray("CommentsCount");
             JSONObject commentCountJsonObj = commentCountJsonArray.getJSONObject(0);
-            int commentCount = commentCountJsonObj.getInt("CommentCount");
+            String commentCount = commentCountJsonObj.getString("CommentCountStr");
             page.setCommentCount(commentCount);
+            Double goodRate = commentCountJsonObj.getDouble("GoodRate");
+            page.setGoodRate(goodRate.floatValue());
         }
     }
 }

@@ -2,6 +2,7 @@ package cn.xpleaf.spider.redis;
 
 import cn.xpleaf.spider.constants.SpiderConstants;
 import cn.xpleaf.spider.utils.JedisUtil;
+import cn.xpleaf.spider.utils.SpiderUtil;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
@@ -19,13 +20,19 @@ public class MyRedisSource implements SourceFunction<String> {
     public void run(SourceContext<String> sourceContext) throws Exception {
         this.jedis = new Jedis("127.0.0.1", 6379);
         while(isRunning){
-            String randomDomain = jedis.srandmember(SpiderConstants.SPIDER_WEBSITE_DOMAINS_KEY);    // jd.com
-            String key = randomDomain + SpiderConstants.SPIDER_DOMAIN_HIGHER_SUFFIX;                // jd.com.higher
-            String url = jedis.lpop(key);
-            if(url == null) {   // 如果为null，则从低优先级中获取
-                key = randomDomain + SpiderConstants.SPIDER_DOMAIN_LOWER_SUFFIX;    // jd.com.lower
+            String url = null;
+            while (url ==null){
+                String randomDomain = jedis.srandmember(SpiderConstants.SPIDER_WEBSITE_DOMAINS_KEY);    // jd.com
+                String key = randomDomain + SpiderConstants.SPIDER_DOMAIN_HIGHER_SUFFIX;                // jd.com.higher
                 url = jedis.lpop(key);
+                if(url == null) {   // 如果为null，则从低优先级中获取
+                    key = randomDomain + SpiderConstants.SPIDER_DOMAIN_LOWER_SUFFIX;    // jd.com.lower
+                    url = jedis.lpop(key);
+                }
+                SpiderUtil.sleep(1000);
             }
+
+
             //System.out.println("---Flink source url");
             sourceContext.collect(url);
             //JedisUtil.returnJedis(jedis);
