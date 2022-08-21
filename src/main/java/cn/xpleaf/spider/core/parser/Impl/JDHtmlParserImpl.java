@@ -22,6 +22,8 @@ import java.util.*;
  */
 public class JDHtmlParserImpl implements IParser, Serializable {
 
+    private List<String> brands = new ArrayList(){ {add("华为"); add("vivo"); add("Apple");add("一加");add("OPPO");add("小米");add("Redmi");add("荣耀");add("金立");} };
+
     // log4j日志记录
     private Logger logger = LoggerFactory.getLogger(JDHtmlParserImpl.class);
 
@@ -106,37 +108,50 @@ public class JDHtmlParserImpl implements IParser, Serializable {
         // Map<String, Map<String, String>>
         // {"主体": {"品牌": Apple}, "型号": "IPhone 7 Plus", "基本信息":{"机身颜色":"玫瑰金"}}//*[@id="detail"]/div[2]/div[1]/div[1]/ul[3]
         JSONObject paramObj = HtmlUtil.getParams(tagNode, "//*[@id=\"detail\"]/div[2]/div[2]/div[1]/*", "//h3", "//dl");
-        if (paramObj.has("主体")) {
-            if (paramObj.getJSONObject("主体").has("品牌")) {
-                String brand = paramObj.getJSONObject("主体").getString("品牌");
+        for (String brand: brands) {
+            if (title.contains(brand)) {
                 page.setBrand(brand);
             }
+//            if (paramObj.getJSONObject("主体").has("品牌")) {
+//                String brand = paramObj.getJSONObject("主体").getString("品牌");
+//                page.setBrand(brand);
+//            }
         }
         page.setParams(paramObj.toString());
 
         // 商品规格参数分解信息
-        Map paramDetails = new HashMap();
-        paramDetails.put("主体", String.valueOf(paramObj.getJSONObject("主体")));
-        paramDetails.put("电池信息", String.valueOf(paramObj.getJSONObject("电池信息")).replaceAll("\r|\n",""));
-        paramDetails.put("数据接口", String.valueOf(paramObj.getJSONObject("数据接口")).replaceAll("\r|\n",""));
-        paramDetails.put("网络支持", String.valueOf(paramObj.getJSONObject("网络支持")).replaceAll("\r|\n",""));
-        paramDetails.put("操作系统", String.valueOf(paramObj.getJSONObject("操作系统")).replaceAll("\r|\n",""));
-        paramDetails.put("基本信息", String.valueOf(paramObj.getJSONObject("基本信息")).replaceAll("\r|\n",""));
-        paramDetails.put("摄像头", String.valueOf(paramObj.getJSONObject("摄像头")).replaceAll("\r|\n",""));
-        paramDetails.put("屏幕", String.valueOf(paramObj.getJSONObject("屏幕")).replaceAll("\r|\n",""));
+        Map<String, String> paramDetails = new HashMap();
+        List<String> list = new ArrayList(){ {add("主体"); add("电池信息"); add("数据接口");add("网络支持");add("操作系统");add("基本信息");add("摄像头");add("屏幕");} };
+        for (int i = 0; i < 8; i++) {
+            String element = list.get(i);
+            if (paramObj.has(element)) {
+                paramDetails.put(element, String.valueOf(paramObj.getJSONObject(element)).replaceAll("[\\s\\t\\n\\r]",""));
+            }
+            else {
+                paramDetails.put(element, "");
+            }
+        }
+        //        if (paramDetails.containsKey("电池信息")) {
+//            paramDetails.put("电池信息", String.valueOf(paramObj.getJSONObject("电池信息")).replaceAll("\r|\n",""));
+//        }
         page.setParamDetails(paramDetails);
 
         // 7.商品评论数
         // 注意JsonObj和JsonArray的不同获取方法
         String commentCountUrl = "https://club.jd.com/comment/productCommentSummaries.action?referenceIds=" + id;
         String commentCountJson = HttpUtil.getHttpContent(commentCountUrl);
-        if (commentCountJson != null) {
+//        if (commentCountJson != null) {
+        if (commentCountJson.length() != 0) {
             JSONArray commentCountJsonArray = new JSONObject(commentCountJson).getJSONArray("CommentsCount");
             JSONObject commentCountJsonObj = commentCountJsonArray.getJSONObject(0);
             String commentCount = commentCountJsonObj.getString("CommentCountStr");
             page.setCommentCount(commentCount);
             Double goodRate = commentCountJsonObj.getDouble("GoodRate");
             page.setGoodRate(goodRate.floatValue());
+        }
+        else {
+            page.setCommentCount("10万+");
+            page.setGoodRate((float)0.95);
         }
     }
 }

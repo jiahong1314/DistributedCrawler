@@ -1,8 +1,1 @@
-2022-08-18 09:54:05 [Cancellation Watchdog for Source: Custom Source (1/1)#0 (97b9204a88f2e55b489e11e80c62586c).] [org.apache.flink.runtime.taskexecutor.TaskExecutor] [ERROR] - Task did not exit gracefully within 180 + seconds.
-org.apache.flink.util.FlinkRuntimeException: Task did not exit gracefully within 180 + seconds.
-	at org.apache.flink.runtime.taskmanager.Task$TaskCancelerWatchDog.run(Task.java:1718)
-	at java.base/java.lang.Thread.run(Thread.java:829)
-2022-08-18 09:54:05 [Cancellation Watchdog for Map (3/8)#0 (6835c28f22db5195dccae14715b99f73).] [org.apache.flink.runtime.taskexecutor.TaskExecutor] [ERROR] - Task did not exit gracefully within 180 + seconds.
-org.apache.flink.util.FlinkRuntimeException: Task did not exit gracefully within 180 + seconds.
-	at org.apache.flink.runtime.taskmanager.Task$TaskCancelerWatchDog.run(Task.java:1718)
-	at java.base/java.lang.Thread.run(Thread.java:829)
+2022-08-21 00:52:45 [Flat Map -> Sink: Unnamed (4/4)#0] [cn.xpleaf.spider.utils.HttpUtil] [ERROR] - 下载网页：https://list.jd.com/list.html?cat=9987,653,655&page=1出错，代理信息：8.129.28.247:8888，

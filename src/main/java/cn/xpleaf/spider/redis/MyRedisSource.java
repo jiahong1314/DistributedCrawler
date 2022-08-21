@@ -29,7 +29,7 @@ public class MyRedisSource implements SourceFunction<String> {
                     key = randomDomain + SpiderConstants.SPIDER_DOMAIN_LOWER_SUFFIX;    // jd.com.lower
                     url = jedis.lpop(key);
                 }
-                SpiderUtil.sleep(1000);
+                SpiderUtil.sleep(5000);
             }
 
 
